@@ -1,0 +1,63 @@
+
+/* Part2_2整体容器 */
+.Part2_2-container{
+    width: 66.7%;
+    height: 2.4rem;
+    margin-left: .2666666667rem;
+    margin-top: .26666666667rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+    border-radius: .2666667rem;
+    background-color: #fff;
+}
+/* Part2_2左边文字 */
+.Part2_2-container > .Part2_2_text{
+    width: 60%;
+    height: 2.4rem;
+    padding: 0.13333rem 0.18667rem 0.13333rem 0.18667rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.Part2_2_text > div{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-size: .37333rem;
+    font-weight: 700;
+    color: #000;
+}
+.Part2_2_text > .text2{
+    height: 1.066666667rem;
+    line-height: .2933333rem;
+    font-size: .29333rem;
+    color: #a2a2a2;
+}
+.Part2_2_text > .text2{
+    height: 1.066666667rem;
+    line-height: .2933333rem;
+    font-size: .29333rem;
+    color: #a2a2a2;
+}
+
+/* Part2_2右边<重新校验icon> */ 
+.Part2_2-container > .Part2_2_icon{
+    width: 40%;
+    height: 1.8rem;
+    margin-top: .1333rem;
+    display: flex;
+    justify-content: center;
+}
+.Part2_2-container > .Part2_2_icon > .icon{
+    width: 60%;
+    height: 70%;
+}
+
+
+

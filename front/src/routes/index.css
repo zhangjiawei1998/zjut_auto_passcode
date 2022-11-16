@@ -1,0 +1,50 @@
+.App-container{
+    padding:.26667rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: center;
+    font-size: medium;
+}
+.input{
+  border-radius: 5px;
+}
+
+.title{
+  font-size: larger;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+.whtie-block{
+  height:20px;
+}
+.fieldset{
+  width: 7.5rem;
+  border-radius: 20px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+.field{
+  display: block;
+  text-align: center;
+}
+
+.btn-group{
+  width: 7.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+.btn{
+  width: 2rem;
+  height: 0.8rem;
+  border-radius: 10px;
+  margin-top: 10px;
+}

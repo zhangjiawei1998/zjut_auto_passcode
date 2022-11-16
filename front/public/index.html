@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0,initial-scale=1.0">
+    <title>自由的世界</title>
+    <script>
+        window.onload = ()=>{
+            // 根据样式稿自适应屏幕宽度  
+            var html = document.querySelector('html');
+            var rem = 100* html.offsetWidth / 1000; //1000为样式稿的宽度
+            html.style.fontSize = rem +'px';
+        }
+    </script>
+    <style>
+        {% comment %} 根据媒体自查, 不同屏幕尺寸不同像素 {% endcomment %}
+        {% comment %} @media screen and (max-width: 320px) {
+            body{font-size: 14px;}
+        }
+        @media screen and (min-width: 321px) and (max-width: 413px) {
+            body{font-size: 16px;}
+        }
+        @media screen and (min-width: 414px) and (max-width: 639px) {
+            body{font-size: 17px;}
+        }
+        @media screen and (min-width: 640px) {
+            body{font-size: 18px;}
+        } {% endcomment %}
+
+    </style>
+</head>
+<body>
+    <div id="root">
+        
+    </div>
+</body>
+</html>

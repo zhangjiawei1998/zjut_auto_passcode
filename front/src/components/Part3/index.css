@@ -1,0 +1,18 @@
+.Part3-container{
+    width: 100%;
+    height: 1.3333333rem;
+    margin-top: .2666666rem;
+    border-radius: .2666667rem;
+    background-color: #fff;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.Part3-container > .bottomImg{
+    width: 95%;
+    height: 100%;
+    border-radius: .2666667rem;
+}

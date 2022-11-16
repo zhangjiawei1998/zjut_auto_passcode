@@ -1,0 +1,108 @@
+
+/* 整体-容器 */
+.Part1-container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    border-radius: .26667rem;
+    padding-top: .53333rem;
+    background-color: #fff;
+}
+
+/* 时钟-容器 */
+.clock-container{
+    color: rgb(230, 145, 56);
+    width: 100%;
+    font-weight: 700;
+    display: flex;
+    flex-direction: row;
+    -webkit-flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* 绿码-容器 */
+.QRCode-container{
+    height: 5.46667rem;
+    display: flex;
+    flex-direction: row; 
+    -webkit-flex-direction:row;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+
+}
+
+/* 绿码-外包围框 */
+.QRCode-border-outside{
+    width: 5.46667rem;
+    height: 5.46667rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0.08rem solid rgb(211, 195, 130);
+    border-radius: 0.13333rem;
+    box-sizing: border-box;
+}
+
+/* 绿码-内包围框 */
+.QRCode-border-inside{
+    width: 5.2rem;
+    height: 5.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0.02667rem solid rgb(211, 195, 130);
+    border-radius: 0.13333rem;
+    box-sizing: border-box;
+}
+
+.QRCode{
+    border-radius: 0.13333rem;
+    width: 5.2rem;
+    height: 5.2rem;
+}
+
+
+/* 文字-容器 */
+.text-green{
+    margin-top: 0.22667rem;
+    font-size: .42667rem;
+    width: 100%;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: column;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    color: rgb(92, 147, 233)
+}
+.space{
+    height: 0.22667rem;
+}
+.text-2141{
+    font-size: 12px;
+    color: #a2a2a2;
+    padding:0 .53333rem .26667rem .53333rem ;
+}
+.space-12313{
+    height: 0.5rem;
+}
+
+

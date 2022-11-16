@@ -4,7 +4,7 @@ import datetime
 import time
 import re
 from log import logger
-
+import random
 
 
 class autoPassCode(object):
@@ -37,7 +37,7 @@ class autoPassCode(object):
                     elif studentInfo['auditId'] == 'error':
                         continue
                     else:
-                        self.auto_appeal(studentsInfo['name'], studentsInfo['id'], studentsInfo['auditId'], date_list)
+                        self.auto_appeal(studentInfo['name'], studentInfo['id'], studentInfo['auditId'], date_list)
                 else:
                     logger.info(f'用户[{name}]不需要补打卡, 非常good')
 
@@ -65,7 +65,9 @@ class autoPassCode(object):
                     logger.error(f'获取用户[{name}]的状态信息出错, error: {e}')
                     return  [ ]
             return [ ]
-    # 是否已经打卡: 返回的messages为 '已完成新冠疫苗接种' 即为已打卡
+    # 是否已经打卡: 
+    #   返回的messages包含 '已完成新冠疫苗接种' '已完成新冠疫苗加强接种'即为已打卡
+    #   返回的messages包含 '您未完成当日'      即为未打卡
     def is_already_clock(self, studentId):
         url = 'http://mryb.zjut.edu.cn/htk/baseInfo/getQRCode'
         payload = {
@@ -73,8 +75,10 @@ class autoPassCode(object):
         }
         try:
             resp = requests.get(url=url, headers=self.headers, params=payload)
+            resp = requests.get(url=url, headers=self.headers, params=payload)
             resp_json = json.loads(resp.text)
-            match_list = re.findall(r'已完成新冠疫苗接种', resp_json['message'])
+            match_list = re.findall(r'已完成新冠疫苗', resp_json['message'])
+            logger.info('判断今日是否已打卡？ 获取用户状态信息: %s', resp_json['message'])
             # 已打卡
             if resp_json['success'] and len(match_list) != 0:
                 return True
@@ -121,13 +125,13 @@ class autoPassCode(object):
                 "healthCode": "3",
                 "agreement": None
             }
-            data['data'].push(date_info)
+            data['data'].append(date_info)
         
         try:
-            date_str = date_list.join(',')
+            date_str = ','.join(date_list)
             resp_json = requests.post(url=url, headers=self.headers, json=data).json()
             if(resp_json['success']):
-                logger.error(f'用户[{name}]补打卡成功, 补打卡日期: {date_str}')
+                logger.info(f'用户[{name}]补打卡成功, 补打卡日期: {date_str}')
             else:
                 message = resp_json['message']
                 logger.error(f'用户[{name}]补打卡失败, message: {message}, 补打卡日期: {date_str}')
@@ -137,22 +141,22 @@ class autoPassCode(object):
     def auto_clock(self, studentInfo):
         url = 'http://mryb.zjut.edu.cn/htk/baseInfo/save'
         data = {
-            "workNo": studentInfo['id'],
-            "name": studentInfo['name'],
-            "sex": studentInfo['sex'],
-            "campus": "2",
-            "company": studentInfo['company'],
-            "currentLocation": "浙江省杭州市西湖区",
-            "whetherLeave": "2",
+            "workNo": studentInfo['id'],  # 学号
+            "name": studentInfo['name'],  # 姓名
+            "sex": studentInfo['sex'],    # 性别 0女 1男
+            "campus": "2",                # ?
+            "company": studentInfo['company'], # 学院
+            "currentLocation": "浙江省杭州市西湖区", # 当前定位
+            "whetherLeave": "2",                  # 是否离校
             "leaveReson": None,
             "leaveReasonInfo": None,
-            "whetherInSchool": "1",
-            "grade": studentInfo['grade'],
-            "mobile": studentInfo['mobile'],
-            "emLinkPerson": studentInfo['emLinkPerson'],
-            "emLinkMobile": studentInfo['emLinkMobile'],
-            "studentType": "2",
-            "locationPandemic": "3",
+            "whetherInSchool": "1",   # 是否在校
+            "grade": studentInfo['grade'], # 年级
+            "mobile": studentInfo['mobile'], # 电话
+            "emLinkPerson": studentInfo['emLinkPerson'], # 紧急联系人
+            "emLinkMobile": studentInfo['emLinkMobile'], # 紧急联系人电话
+            "studentType": "2",    # 学生类型 ?
+            "locationPandemic": "3", # 
             "meetRiskTime": None,
             "mentalStatus": "1",
             "temperatureOne": "36.0℃",
@@ -169,9 +173,9 @@ class autoPassCode(object):
         try:
             name = studentInfo['name']
             
-            if self.is_already_clock(studentInfo['id']):
-                logger.info(f'用户[{name}]今日已打卡')
-                return True, studentInfo
+            # if self.is_already_clock(studentInfo['id']):
+            #     logger.info(f'用户[{name}]今日已打卡')
+            #     return True, studentInfo
             
             resp_json = requests.post(url=url, headers=self.headers, json=data).json()
             if(resp_json['success']):
@@ -218,24 +222,36 @@ class autoPassCode(object):
             with open(self.studentsInfo_path, 'r') as f:
                 studentsInfo = json.load(f)
                 while True:
-                    need_clock_List = [ studentInfo for _, studentInfo in studentsInfo.items() ] # 需要打卡的学生列表
+                    need_clock_List = [] # 需要打卡的学生列表
+                    for _, studentInfo in studentsInfo.items():
+                        if studentInfo['needClock']:
+                            need_clock_List.append(studentInfo)
+                        else:
+                            logger.info('用户[%s]停止了自动打卡，忽略', studentInfo['name'])
+                    random.shuffle(need_clock_List) #打乱列表，构建随机性
                     sleep_after_clockAll = 23 # 打卡完毕之后的休眠时间 初始值23小时
-                    while len(need_clock_List) != 0: # 打卡失败的情况（maybe网络炸了
+                    while True: # 打卡失败的情况（maybe网络炸了
                         # 一小时内打完所有人的卡
                         for _, studentInfo in studentsInfo.items():
                             # 自动打卡
+                            logger.info(' ')
+                            logger.info('用户[%s]开始打卡', studentInfo['name'])
                             success, stuInfo = self.auto_clock(studentInfo)
                             if success:
                                 need_clock_List.remove(stuInfo)
                             time.sleep(60*60/len(studentsInfo))
-                        # 如果有人打卡失败, 则间隔4个小时再试
-                        sleep_after_clockAll -= 4
-                        if sleep_after_clockAll <= 0:
-                            for stu in need_clock_List:
-                                name = stu['name']
-                                logger.info(f'用户{name}今日打卡失败')
+                        # 如果全部人打卡成功, 跳出循环
+                        if len(need_clock_List) == 0:
                             break
-                        time.sleep(4*60*60)
+                        # 如果有人打卡失败, 则间隔4个小时再试
+                        sleep_after_clockAll -= 5
+                        namestr = [ studentInfo['name'] for _, studentInfo in studentsInfo.items() ].join(',')
+                        if sleep_after_clockAll <= 0:
+                            logger.info('用户[%s]今日打卡失败', namestr)
+                            break
+                        else:
+                            logger.info('用户[%s]打卡失败，稍后再试', namestr)
+                            time.sleep(4*60*60)
                     
                     logger.info('-----------打卡完毕----------')
                     logger.info(' ')

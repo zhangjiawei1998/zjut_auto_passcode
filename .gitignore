@@ -1,0 +1,6 @@
+__pycache__
+auto_clock.log
+nohup.out
+studentsInfo.json
+
+backend/api.log
