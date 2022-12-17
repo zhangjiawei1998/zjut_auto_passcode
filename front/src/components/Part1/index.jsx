@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
-import QRCode from 'qrcode.react'
+// import QRCode from 'qrcode.react'
 
 import './index.css'
 import Header from './Header'
 import Clock from './Clock'
-// import QRCode from './QRCode.png'
+import QRCode from './QRCode.png'
 
 
 export default function Part1(props) {
@@ -31,8 +31,8 @@ export default function Part1(props) {
       <div className='QRCode-container'>
         <div className='QRCode-border-outside'>
           <div ref={QRBorder} className='QRCode-border-inside'>
-            <QRCode level='H' style={{borderRadius: QRSize*0.0256}} size={QRSize} value={JSON.stringify(content)}/>
-            {/* <img src={QRCode} alt='二维码失效' className='QRCode' /> */}
+            {/* <QRCode level='H' style={{borderRadius: QRSize*0.0256}} size={QRSize} value={JSON.stringify(content)}/> */}
+            <img src={QRCode} alt='二维码失效' className='QRCode' />
           </div>
         </div>
       </div>

@@ -6,8 +6,10 @@
     justify-content: stretch;
     align-items: center;
     font-size: medium;
+    background-image: linear-gradient(-60deg, #16a085 0%, #f4d03f 100%);
 }
 .input{
+  height: 0.6rem;
   border-radius: 5px;
 }
 
@@ -20,8 +22,14 @@
 .whtie-block{
   height:20px;
 }
+.modify-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 .fieldset{
-  width: 7.5rem;
+  width: 7.4rem;
   border-radius: 20px;
   padding: 20px;
   display: grid;
@@ -36,14 +44,13 @@
 }
 
 .btn-group{
-  width: 7.5rem;
+  width: 7.4rem;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  align-items: center;
 }
 .btn{
-  width: 2rem;
+  width: 2.2rem;
   height: 0.8rem;
   border-radius: 10px;
   margin-top: 10px;

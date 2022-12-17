@@ -3,7 +3,7 @@
 import logging
 import logging.handlers
 
-LOG_FILENAME = 'auto_passcode.log'
+LOG_FILENAME = 'auto_clock.log'
 
 logger = logging.getLogger()
 

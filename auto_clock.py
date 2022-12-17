@@ -5,41 +5,41 @@ import time
 import re
 from log import logger
 import random
-
+import copy
 
 class autoPassCode(object):
     def __init__(self, studentsInfo_path: str) -> None:
         self.headers = {
-            'Host':             'mryb.zjut.edu.cn',
-            'Content-Type' : 'application/json;charset=UTF-8',
-            'Accept':	'*/*',
-            'Connection':	'keep-alive',
-            'User-Agent':       "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
-            'Referer':          'http://mryb.zjut.edu.cn'
+            'Host':          'mryb.zjut.edu.cn',
+            'Content-Type':  'application/json;charset=UTF-8',
+            'Accept':        '*/*',
+            'Connection':    'keep-alive',
+            'User-Agent':    "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
+            'Referer':       'http://mryb.zjut.edu.cn'
         }
 
         self.studentsInfo_path = studentsInfo_path
-        
-        with open(self.studentsInfo_path, 'r') as f:
-            studentsInfo = json.load(f)
-            for _, studentInfo in studentsInfo.items():
-                # 获取审批人Id
-                studentInfo['auditId'] = self.get_audit_info(studentInfo['id'], studentInfo['auditName'])
-                # 检测是否需要补打卡
-                date_list = self.get_missing_clock(studentInfo['id'])
-                # 补打卡
-                name = studentInfo['name']
-                if len(date_list) > 0:
-                    if studentInfo['auditId'] == 'notFound':
-                        auditName = studentInfo['auditName']
-                        logger.info(f'用户[{name}]需要补打卡, 但是没有找到审批人[{auditName}]的id, 补打卡失败')
-                        continue
-                    elif studentInfo['auditId'] == 'error':
-                        continue
-                    else:
-                        self.auto_appeal(studentInfo['name'], studentInfo['id'], studentInfo['auditId'], date_list)
-                else:
-                    logger.info(f'用户[{name}]不需要补打卡, 非常good')
+        # 补打卡
+        # with open(self.studentsInfo_path, 'r') as f:
+        #     studentsInfo = json.load(f)
+        #     for _, studentInfo in studentsInfo.items():
+        #         # 获取审批人Id
+        #         studentInfo['auditId'] = self.get_audit_info(studentInfo['id'], studentInfo['auditName'])
+        #         # 检测是否需要补打卡
+        #         date_list = self.get_missing_clock(studentInfo['id'])
+        #         # 补打卡
+        #         name = studentInfo['name']
+        #         if len(date_list) > 0:
+        #             if studentInfo['auditId'] == 'notFound':
+        #                 auditName = studentInfo['auditName']
+        #                 logger.info(f'用户[{name}]需要补打卡, 但是没有找到审批人[{auditName}]的id, 补打卡失败')
+        #                 continue
+        #             elif studentInfo['auditId'] == 'error':
+        #                 continue
+        #             else:
+        #                 self.auto_appeal(studentInfo['name'], studentInfo['id'], studentInfo['auditId'], date_list)
+        #         else:
+        #             logger.info(f'用户[{name}]不需要补打卡, 非常good')
 
             
     # 获取没打卡的日期
@@ -146,11 +146,11 @@ class autoPassCode(object):
             "sex": studentInfo['sex'],    # 性别 0女 1男
             "campus": "2",                # ?
             "company": studentInfo['company'], # 学院
-            "currentLocation": "浙江省杭州市西湖区", # 当前定位
+            "currentLocation": studentInfo['currentLocation'], # 当前定位
             "whetherLeave": "2",                  # 是否离校
             "leaveReson": None,
             "leaveReasonInfo": None,
-            "whetherInSchool": "1",   # 是否在校
+            "whetherInSchool": studentInfo['whetherInSchool'], # 是否在校
             "grade": studentInfo['grade'], # 年级
             "mobile": studentInfo['mobile'], # 电话
             "emLinkPerson": studentInfo['emLinkPerson'], # 紧急联系人
@@ -217,22 +217,23 @@ class autoPassCode(object):
                 
     def auto(self):
         try:
-            # 时间在 01:00:00 ~ 01:59:59 会进行打卡
-            self.wait_for_time(1)
-            with open(self.studentsInfo_path, 'r') as f:
-                studentsInfo = json.load(f)
-                while True:
+            # 时间在 00:00:00 ~ 00:59:59 会进行打卡
+            self.wait_for_time(0)
+            while True:
+                sleep_after_clockAll = 23 # 打卡完毕之后的休眠时间 初始值23小时
+                with open(self.studentsInfo_path, 'r') as f:
+                    studentsInfo = json.load(f)
                     need_clock_List = [] # 需要打卡的学生列表
                     for _, studentInfo in studentsInfo.items():
                         if studentInfo['needClock']:
                             need_clock_List.append(studentInfo)
                         else:
                             logger.info('用户[%s]停止了自动打卡，忽略', studentInfo['name'])
+                    random.seed(datetime.datetime.now().day)
                     random.shuffle(need_clock_List) #打乱列表，构建随机性
-                    sleep_after_clockAll = 23 # 打卡完毕之后的休眠时间 初始值23小时
                     while True: # 打卡失败的情况（maybe网络炸了
                         # 一小时内打完所有人的卡
-                        for _, studentInfo in studentsInfo.items():
+                        for studentInfo in copy.deepcopy(need_clock_List):
                             # 自动打卡
                             logger.info(' ')
                             logger.info('用户[%s]开始打卡', studentInfo['name'])
@@ -245,7 +246,7 @@ class autoPassCode(object):
                             break
                         # 如果有人打卡失败, 则间隔4个小时再试
                         sleep_after_clockAll -= 5
-                        namestr = [ studentInfo['name'] for _, studentInfo in studentsInfo.items() ].join(',')
+                        namestr = ','.join([ stuInfo['name'] for stuInfo in need_clock_List ])
                         if sleep_after_clockAll <= 0:
                             logger.info('用户[%s]今日打卡失败', namestr)
                             break
@@ -255,8 +256,8 @@ class autoPassCode(object):
                     
                     logger.info('-----------打卡完毕----------')
                     logger.info(' ')
-                    # 休眠
-                    time.sleep(sleep_after_clockAll*60*60)
+                # 休眠
+                time.sleep(sleep_after_clockAll*60*60)
                     
         except KeyboardInterrupt:
             logger.info('--------END--------')
@@ -264,5 +265,5 @@ class autoPassCode(object):
 
 logger.info('--------START--------')
 
-x = autoPassCode('./studentsInfo.json')
+x = autoPassCode('/home/not/zjut_auto_clock/studentsInfo.json')
 x.auto()
